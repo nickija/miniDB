@@ -6,6 +6,7 @@ import os
 from btree import Btree
 import shutil
 from misc import split_condition
+from locking import *
 
 class Database:
     '''
@@ -38,11 +39,10 @@ class Database:
 
         # create all the meta tables
         self.create_table('meta_length',  ['table_name', 'no_of_rows'], [str, int])
-        self.create_table('meta_locks',  ['table_name', 'locked'], [str, bool])
+        self.create_table('meta_locks',  ['table_name', 'xLocked', 'sLocked'], [str, bool, bool])
         self.create_table('meta_insert_stack',  ['table_name', 'indexes'], [str, list])
         self.create_table('meta_indexes',  ['table_name', 'index_name'], [str, str])
         self.save()
-
 
 
     def save(self):
@@ -114,7 +114,7 @@ class Database:
         Drop table with name 'table_name' from current db
         '''
         self.load(self.savedir)
-        if self.is_locked(table_name):
+        if self.isS_locked(table_name) or self.isX_locked(table_name):
             return
 
         self.tables.pop(table_name)
@@ -140,8 +140,8 @@ class Database:
         if name is None:
             name=filename.split('.')[:-1][0]
 
-
         file = open(filename, 'r')
+
 
         first_line=True
         for line in file.readlines():
@@ -155,7 +155,7 @@ class Database:
                 continue
             self.tables[name]._insert(line.strip('\n').split(','))
 
-        self.unlock_table(name)
+        self.unlockX_table(name)
         self._update()
         self.save()
 
@@ -206,11 +206,11 @@ class Database:
         cast_type -> needs to be a python type like str int etc. NOT in ''
         '''
         self.load(self.savedir)
-        if self.is_locked(table_name):
+        if self.isX_locked(table_name) or self.isS_locked(table_name):
             return
         self.lockX_table(table_name)
         self.tables[table_name]._cast_column(column_name, cast_type)
-        self.unlock_table(table_name)
+        self.unlockX_table(table_name)
         self._update()
         self.save()
 
@@ -224,7 +224,7 @@ class Database:
         '''
         if lock_load_save:
             self.load(self.savedir)
-            if self.is_locked(table_name):
+            if self.isX_locked(table_name) or self.isS_locked(table_name):
                 return
             # fetch the insert_stack. For more info on the insert_stack
             # check the insert_stack meta table
@@ -238,7 +238,7 @@ class Database:
         # sleep(2)
         self._update_meta_insert_stack_for_tb(table_name, insert_stack[:-1])
         if lock_load_save:
-            self.unlock_table(table_name)
+            self.unlockX_table(table_name)
             self._update()
             self.save()
 
@@ -257,11 +257,11 @@ class Database:
                     operatores supported -> (<,<=,==,>=,>)
         '''
         self.load(self.savedir)
-        if self.is_locked(table_name):
+        if self.isX_locked(table_name) or self.isS_locked(table_name):
             return
         self.lockX_table(table_name)
         self.tables[table_name]._update_row(set_value, set_column, condition)
-        self.unlock_table(table_name)
+        self.unlockX_table(table_name)
         self._update()
         self.save()
 
@@ -277,11 +277,11 @@ class Database:
                     operatores supported -> (<,<=,==,>=,>)
         '''
         self.load(self.savedir)
-        if self.is_locked(table_name):
+        if self.isX_locked(table_name) or self.isS_locked(table_name):
             return
         self.lockX_table(table_name)
         deleted = self.tables[table_name]._delete_where(condition)
-        self.unlock_table(table_name)
+        self.unlockX_table(table_name)
         self._update()
         self.save()
         # we need the save above to avoid loading the old database that still contains the deleted elements
@@ -309,9 +309,9 @@ class Database:
 
         '''
         self.load(self.savedir)
-        if self.is_locked(table_name):
+        if self.isX_locked(table_name):
             return
-        self.lockX_table(table_name)
+        self.lockS_table(table_name)
         if condition is not None:
             condition_column = split_condition(condition)[0]
         if self._has_index(table_name) and condition_column==self.tables[table_name].column_names[self.tables[table_name].pk_idx]:
@@ -320,7 +320,7 @@ class Database:
             table = self.tables[table_name]._select_where_with_btree(columns, bt, condition, order_by, asc, top_k)
         else:
             table = self.tables[table_name]._select_where(columns, condition, order_by, asc, top_k)
-        self.unlock_table(table_name)
+        self.unlockS_table(table_name)
         if save_as is not None:
             table._name = save_as
             self.table_from_object(table)
@@ -337,7 +337,7 @@ class Database:
         table_name -> table's name (needs to exist in database)
         '''
         self.load(self.savedir)
-        if self.is_locked(table_name):
+        if self.isX_locked(table_name):
             return
         self.tables[table_name].show(no_of_rows, self.is_locked(table_name))
 
@@ -351,11 +351,11 @@ class Database:
         '''
 
         self.load(self.savedir)
-        if self.is_locked(table_name):
+        if self.isX_locked(table_name) or self.isS_locked(table_name):
             return
         self.lockX_table(table_name)
         self.tables[table_name]._sort(column_name, asc=asc)
-        self.unlock_table(table_name)
+        self.unlockX_table(table_name)
         self._update()
         self.save()
 
@@ -373,7 +373,7 @@ class Database:
         return_object -> If true, the result will be a table object (usefull for internal usage). Def: False (the result will be printed)
         '''
         self.load(self.savedir)
-        if self.is_locked(left_table_name) or self.is_locked(right_table_name):
+        if self.isX_locked(left_table_name) or self.isS_locked(left_table_name) or self.isX_locked(right_table_name) or self.isS_locked(right_table_name):
             print(f'Table/Tables are currently locked')
             return
 
@@ -396,7 +396,7 @@ class Database:
         if table_name[:4]=='meta':
             return
 
-        self.tables['meta_locks']._update_row(True, 'locked', f'table_name=={table_name}')
+        self.tables['meta_locks']._update_row(True, 'xlocked', f'table_name=={table_name}')
         self._save_locks()
         # print(f'Locking table "{table_name}"')
 
@@ -406,7 +406,7 @@ class Database:
 
         table_name -> table's name (needs to exist in database)
         '''
-        self.tables['meta_locks']._update_row(False, 'locked', f'table_name=={table_name}')
+        self.tables['meta_locks']._update_row(False, 'xlocked', f'table_name=={table_name}')
         self._save_locks()
         # print(f'Unlocking table "{table_name}"')
 
@@ -463,7 +463,7 @@ class Database:
                 continue
             if table._name not in self.meta_locks.table_name:
 
-                self.tables['meta_locks']._insert([table._name, False])
+                self.tables['meta_locks']._insert([table._name, False, False])
                 # self.insert('meta_locks', [table._name, False])
 
     def _update_meta_insert_stack(self):

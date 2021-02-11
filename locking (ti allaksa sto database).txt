@@ -1,0 +1,38 @@
+Task 2.1 - Locks (*)
+4
+Υλοποίηση διαφορετικών ειδών κλειδωμάτων (locks) όπως:
+1. Exclusive/Share table wide
+2. Exclusive/Share row wide
+Συγκεκριμένα, η miniDB στην παρούσα φάση υποστηρίζει έναν τύπο κλειδώματος, τον
+exclusive table wide. Καλείστε να υλοποιήσετε τους υπόλοιπους τύπους, καθώς και να
+μεριμνήσετε για τις απαραίτητες αλλαγές στα σχετικά meta tables.
+
+
+-merh pou yparxoun locks:
+-database.py
+line:
+__init__41 creates tabe meta locks(string, bool) //allaksa ligo to locked, evala bools xlocked kai slocked
+
+	56-61 _save_locks
+
+_update	88 inside calls _update_meta_locks
+drptbl	117 checks if locked //evala na checkarei kai gia ta dyo locks
+drptbl	126 deletes table row inside meta locks because table gor droped
+tblcsv	153 locks table created, 158 unlocks table created //to kana unlockX
+cstclmn	209 checks if locked, 211 locks it, 213 unlocks it //to kana unlockX kai checkarw kai ta dyo if locked
+insert	225 if lock_load_save, 227 checks if locked, 231 locks it, 240-241 if l_l_s, unlock //to kana unlockX
+update	260-262 checks if locked and locks, 264 unlocks //to kana unlockX kai checkarw kai ta dyo if locked
+delete	280-282 checks if locked and locks, 284 unlocks //to kana unlockX kai checkarw kai ta dyo if locked
+select	312-314 checks if locked and locks, 323 unlocks //checkarw if xlocked, kai kanw lockS mono auth th fora epeidh einai to select
+showtbl	340 checks if locked //checkarw if isX_locked
+sort	354-356 checks if locked and locks, 358 unlocks //to kana unlockX kai checkarw kai ta dyo if locked
+innrjn	376 checks if either table locked //checkarw kai gia lockS kai lockX kai gia ta dyo
+
+	390-401 lockXtable (calls _save_locks inside)
+	403-411 unlock table (calls _save_locks inside)
+	413-433 isLocked
+	457-467 update_meta_locks //evala false kai sto slocked mazi me to xlocked
+	
+-table.py
+lines:
+show	337 checks if locked
