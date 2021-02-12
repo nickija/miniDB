@@ -39,7 +39,7 @@ class Database:
 
         # create all the meta tables
         self.create_table('meta_length',  ['table_name', 'no_of_rows'], [str, int])
-        self.create_table('meta_locks',  ['table_name', 'xLocked', 'sLocked'], [str, bool, bool])
+        self.create_table('meta_locks',  ['table_name', 'row', 'xLocked', 'sLocked'], [str, bool, bool])
         self.create_table('meta_insert_stack',  ['table_name', 'indexes'], [str, list])
         self.create_table('meta_indexes',  ['table_name', 'index_name'], [str, str])
         self.save()

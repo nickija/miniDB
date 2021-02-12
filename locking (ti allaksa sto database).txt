@@ -36,3 +36,10 @@ innrjn	376 checks if either table locked //checkarw kai gia lockS kai lockX kai 
 -table.py
 lines:
 show	337 checks if locked
+
+
+
+//prospa8hsa na valw kai ta row wide locks alla pragmatika oso kai na psaxnw, dyskoleuomai epeidh den exw idea 
+//me to pws leitourgoun pragmata sthn python, enw sthn 8ewria ta locks ta kserw kala. Idies dyskolies 
+//kai sta table wide locks.
+//epishs allaksa sto database.py to create meta locks table na exei kai row alla de kserw an etsi einai kalh idea ylopoihshs

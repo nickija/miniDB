@@ -3,6 +3,7 @@ from tabulate import tabulate
 import pickle
 import os
 from misc import get_op, split_condition
+from locking import *
 
 class Table:
     '''
@@ -67,7 +68,6 @@ class Table:
             self._update()
 
     # if any of the name, columns_names and column types are none. return an empty table object
-
 
     def _update(self):
         '''
@@ -334,7 +334,7 @@ class Table:
         Pretty print the table
         '''
         # if the table is locked, add locked keyword to title
-        if is_locked:
+        if self.isX_locked:
             print(f"\n## {self._name} (locked) ##")
         else:
             print(f"\n## {self._name} ##")
