@@ -309,9 +309,17 @@ class Database:
 
         '''
         self.load(self.savedir)
+        #TABLE LOCKING
         if self.isX_locked(table_name):
             return
         self.lockS_table(table_name)
+
+        #ROW LOCKING
+        #
+        # if self.is_rowS_locked(table_name, row)
+        #     return
+        # self.lockS_row(table_name, row)
+
         if condition is not None:
             condition_column = split_condition(condition)[0]
         if self._has_index(table_name) and condition_column==self.tables[table_name].column_names[self.tables[table_name].pk_idx]:
@@ -320,7 +328,11 @@ class Database:
             table = self.tables[table_name]._select_where_with_btree(columns, bt, condition, order_by, asc, top_k)
         else:
             table = self.tables[table_name]._select_where(columns, condition, order_by, asc, top_k)
-        self.unlockS_table(table_name)
+
+        self.unlockS_table(table_name)#TABLE UNLOCKING
+
+        #self.unlockS_row(table_name, row) #ROW UNLOCKING
+
         if save_as is not None:
             table._name = save_as
             self.table_from_object(table)

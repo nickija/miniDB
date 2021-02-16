@@ -43,3 +43,7 @@ show	337 checks if locked
 //me to pws leitourgoun pragmata sthn python, enw sthn 8ewria ta locks ta kserw kala. Idies dyskolies 
 //kai sta table wide locks.
 //epishs allaksa sto database.py to create meta locks table na exei kai row alla de kserw an etsi einai kalh idea ylopoihshs
+
+//nomizw steketai kapws etsi, apla autos pou tha kalesei lock_row, tha perasei san orisma ena row se morfh list, to
+//opoio, 8a sygkri8ei me to row typou list mesa sto meta locks.
+//apo pou 8a kaleitai omws? Pote protimame row locks?
