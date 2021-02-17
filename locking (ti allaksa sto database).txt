@@ -47,3 +47,8 @@ show	337 checks if locked
 //nomizw steketai kapws etsi, apla autos pou tha kalesei lock_row, tha perasei san orisma ena row se morfh list, to
 //opoio, 8a sygkri8ei me to row typou list mesa sto meta locks.
 //apo pou 8a kaleitai omws? Pote protimame row locks?
+
+//sto database.py to _update_meta_locks to ekana otan kanei insert na kanei insert kai ena adeio list pou antiproswpeuei ena row
+//allaksa kapws to lockX_row wste na kanei insert kainouria eggrafh me to row, kai meta sto unlock thn diagrafei
+//to idio me apo panw kai sto lockS_row
+//akoma dyskoleuomai poly

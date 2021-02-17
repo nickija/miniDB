@@ -475,7 +475,7 @@ class Database:
                 continue
             if table._name not in self.meta_locks.table_name:
 
-                self.tables['meta_locks']._insert([table._name, False, False])
+                self.tables['meta_locks']._insert([table._name, [], False, False]) #EVALA STO INSERT NA XWNEI TO TABLE NAME KAI ENA EMPTY LIST TO OPOIO ANTIPROSWPEUEI ENA ROW(DHLADH DEN EINAI ROW LOCKED AN EINAI EMPTY LIST)
                 # self.insert('meta_locks', [table._name, False])
 
     def _update_meta_insert_stack(self):

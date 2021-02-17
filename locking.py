@@ -112,8 +112,8 @@ def lockX_row(self, table_name, row):
         '''
         if table_name[:4]=='meta':
             return
-
-        self.tables['meta_locks']._update_row(True, 'χlocked', f'row=={row}') #TOU LEW NA PAEI EKEI POU TO ROWSTO META LOCKS EINAI IDIO ME TO ROW POU TOU DINW, ANEKSARTHTA APO TO TABLE NAME, KAI NA XWSEI EKEI TRUE STO XLOCKED
+        self.tables['meta_locks']._insert([table_name, row, False, False]) #XWNW NEO ANTIKEIMENO STO META LOCKS POU ANTIPROSWPEUEI TO LOCK ENOS ROW ENOS PINAKA
+        self.tables['meta_locks']._update_row(True, 'χlocked', f'row=={row}') #TOU LEW NA PAEI EKEI POU TO ROW STO META LOCKS EINAI IDIO ME TO ROW POU TOU DINW, ANEKSARTHTA APO TO TABLE NAME, KAI NA XWSEI EKEI TRUE STO XLOCKED
         self._save_locks()
 
 def unlockX_row(self, table_name, row):
@@ -123,6 +123,7 @@ def unlockX_row(self, table_name, row):
         table_name -> table's name (needs to exist in database)
         '''
         self.tables['meta_locks']._update_row(False, 'xlocked', f'row=={row}') #TOU LEW NA PAEI EKEI POU TO ROWSTO META LOCKS EINAI IDIO ME TO ROW POU TOU DINW, ANEKSARTHTA APO TO TABLE NAME, KAI NA XWSEI EKEI FALSE STO XLOCKED
+        self.tables['meta_locks']._delete_where('row=={row}')#AFOU TO KANEI FALSE TOU LEW NA TO KANEI DELETE GIA NA MHN YPARXEI PIA
         self._save_locks()
 
 def is_rowX_locked(self, table_name, row):
@@ -157,6 +158,7 @@ def lockS_row(self, table_name, row):
         if table_name[:4]=='meta':
             return
 
+        self.tables['meta_locks']._insert([table_name, row, False, False]) #XWNW NEO ANTIKEIMENO STO META LOCKS POU ANTIPROSWPEUEI TO LOCK ENOS ROW ENOS PINAKA
         self.tables['meta_locks']._update_row(True, 'slocked', f'row=={row}') #PHGAINE EKEI POU TO ROW POU SOU DINW NA SYGKRINEIS AN EINAI IDIO ME KAPOIO ROW POU EXEIS MESA SOU, KAI XWSE STO SLOCKED(SHARE LOCKED) TRUE
         self._save_locks()
 
@@ -167,6 +169,7 @@ def unlockS_row(self, table_name, row):
         table_name -> table's name (needs to exist in database)
         '''
         self.tables['meta_locks']._update_row(False, 'slocked', f'row=={row}') #PHGAINE EKEI POU TO ROW POU SOU DINW NA SYGKRINEIS AN EINAI IDIO ME KAPOIO ROW POU EXEIS MESA SOU, KAI XWSE STO SLOCKED(SHARE LOCKED) FALSE
+        self.tables['meta_locks']._delete_where('row=={row}')#AFOU TO KANEI FALSE TOU LEW NA TO KANEI DELETE GIA NA MHN YPARXEI PIA
         self._save_locks()
 
 def is_rowS_locked(self, table_name, row):
