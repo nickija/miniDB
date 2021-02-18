@@ -1,4 +1,5 @@
 from database import Database
+from locking import *
 
 db = Database('lgdb', load=False)
 
