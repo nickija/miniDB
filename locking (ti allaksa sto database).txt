@@ -52,3 +52,7 @@ show	337 checks if locked
 //allaksa kapws to lockX_row wste na kanei insert kainouria eggrafh me to row, kai meta sto unlock thn diagrafei
 //to idio me apo panw kai sto lockS_row
 //akoma dyskoleuomai poly
+
+//allaksa sto database.py, sto update, to ekana na kanei lock to row anti gia to table. Vazei to row pou 8elei na allaksei
+//se mia lista, kai to stelnei sth synarthsh lockX_row gia na to lockarei.
+//den eimai sigouros, apla prospa8w na kanw oti mporw gia na to lysw.

@@ -257,11 +257,18 @@ class Database:
                     operatores supported -> (<,<=,==,>=,>)
         '''
         self.load(self.savedir)
-        if self.isX_locked(table_name) or self.isS_locked(table_name):
+
+        if self.isX_locked(table_name) or self.isS_locked(table_name): #TO EKANA NA PAIRNEI TO ROW POU 8ELEI NA KANEI UPDATE, NA TO XWNEI SE LISTA, NA TO KANEI LOCK MONO TO ROW, KAI NA TO KANEI UPDATE KAI META UNLOCK
             return
-        self.lockX_table(table_name)
+        self.lockS_table(table_name)
+        row = self.tables[table_name]._select_where('*', condition, None, False, None)
+        self.unlockS_table(table_name)
+        if self.is_rowX_locked(table_name, row) or self.is_rowS_locked(table_name, row):
+            return
+        self.lockX_row(table_name, row)
         self.tables[table_name]._update_row(set_value, set_column, condition)
-        self.unlockX_table(table_name)
+        self.unlockX_row(table_name, row)
+
         self._update()
         self.save()
 
